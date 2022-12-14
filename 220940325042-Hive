@@ -1,0 +1,40 @@
+
+Creating Table
+create table cust (custno int, firstname string, lastname string, age int, profession string) row format delimited fields by ',' stored as textfile;
+
+
+Loading Data
+
+load data local inpath 'custs.txt' overwrite into table cust; 
+
+
+Write a program to find the count of customers for each profession.
+Answer:
+
+select count(custno), profession from cust group by profession;
+
+
+
+2) Write a program to find the top 10 products sales wise
+
+Created table and loaded data
+
+create table sales(txnid int, txndate string, custid int, amount double, category string, product string, city string, state string, spendby string) row format de
+limited fields terminated by ',' stored as textfile;
+
+
+load data local inpath 'txns1.txt' overwrite into table sales;  
+
+Answer:
+select product, sum(amount) as total from sales group by product order by total desc limit 10; 
+
+
+3) Write a program to create partiioned table on category
+
+Answer:
+Create table parti_cat (txnid int, txndate string, custid int, amount double, product string, city string, state string, spendby string) Partitioned by (category
+string) row format delimited fields terminated by ',' stored as textfile;
+
+set hive.exec.dynamic.partition.mode=nonstrict; 
+                                                                                                                 
+hive> insert overwrite table parti_cat partition (category) select txnid, txndate, custid, amount, product, city , state, spendby, category from sales distribute by category;  
