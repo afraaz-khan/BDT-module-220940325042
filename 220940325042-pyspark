@@ -1,0 +1,58 @@
+
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.master("local[1]").appName("test").getOrCreate()
+
+schema = StructType().add("year", IntegerType(), True).add("quat", LongType(), True).add("avg", DoubleType(), True).add("total_booked", LongType(), True)
+
+airline = spark.read.format("csv").option("header", "True").schema(schema).load("hdfs://nameservice1/user/bigcdac432552/airliness.csv")
+
+airline.registerTempTable("airline")
+
+1) What was the highest number of people travelled in which
+Year?
+
+#1) What was the highest number of people travelled in which year?
+q1 = spark.sql("select year, sum(total_booked) as total from airline group by year order by total desc limit 1")
+q1.show()
+
+
++----+------+
+|year| total|
++----+------+
+|2007|176299|
++----+------+
+
+
+2) Identifying the highest revenue generation for which year
+
+
+
+q2 = spark.sql("select year, sum(avg*total_booked)/100 as maximum from airline group by year order by maximum desc limit 1")
+q2.show()
+
+
++----+-----------+
+|year|    maximum|
++----+-----------+
+|2013|663632.0871|
++----+-----------+
+
+
+3) Identifying the highest revenue generation for which year and quarter (Common
+group)
+
+
+
+#Identifying the highest revenue generation for which year and quarter (Commongroup)
+
+q3 = spark.sql("select year, quat, sum(avg *total_booked)/100 as maximum from airline group by year, quat order by maximum desc limit 1")
+q3.show()
+
+
+
++----+----+-----------+
+|year|quat|    maximum|
++----+----+-----------+
+|2014|   4|188194.0848|
++----+----+-----------+
+
